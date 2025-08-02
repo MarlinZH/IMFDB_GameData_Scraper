@@ -39,3 +39,7 @@ df.to_csv("all_weapons.csv", index=False)
 df.to_markdown("all_weapons.md", index=False)
 
 df.head()
+
+print(f"Total weapons found: {len(weapons)}")
+print(weapons[:5])  # Show a sample
+print(soup.prettify()[:1000])
