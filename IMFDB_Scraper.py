@@ -6,12 +6,22 @@ import re
 from urllib.parse import urljoin
 
 class IMFDBScraper:
-    def __init__(self, delay=1):
+    def __init__(self, delay=2):
         """Initialize the scraper with optional delay between requests"""
         self.delay = delay
         self.session = requests.Session()
         self.session.headers.update({
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.9',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'DNT': '1',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1',
+            'Sec-Fetch-Dest': 'document',
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-Site': 'none',
+            'Cache-Control': 'max-age=0'
         })
     
     def extract_weapon_info(self, soup, weapon_name):
@@ -110,8 +120,21 @@ class IMFDBScraper:
         weapons = []
         
         try:
-            response = self.session.get(url)
+            print(f"Making request to {url}")
+            response = self.session.get(url, timeout=30)
+            
+            if response.status_code == 403:
+                print(f"403 Forbidden for {game_name}. Trying with different approach...")
+                # Try with a fresh session and longer delay
+                time.sleep(5)
+                backup_session = requests.Session()
+                backup_session.headers.update({
+                    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Safari/605.1.15'
+                })
+                response = backup_session.get(url, timeout=30)
+            
             response.raise_for_status()
+            print(f"Successfully retrieved {game_name} page ({len(response.content)} bytes)")
             soup = BeautifulSoup(response.content, "html.parser")
             
             # Find the TOC (Table of Contents) section
@@ -166,6 +189,11 @@ class IMFDBScraper:
             
         except requests.RequestException as e:
             print(f"Error scraping {game_name}: {e}")
+            if "403" in str(e):
+                print("Tip: IMFDB may be blocking automated requests. Try:")
+                print("1. Using a VPN")
+                print("2. Increasing delay between requests")
+                print("3. Running the script at different times")
         except Exception as e:
             print(f"Unexpected error for {game_name}: {e}")
         
@@ -250,11 +278,11 @@ if __name__ == "__main__":
     urls = {
         "MWII": "https://www.imfdb.org/wiki/Call_of_Duty:_Modern_Warfare_II_(2022)",
         "MWIII": "https://www.imfdb.org/wiki/Call_of_Duty:_Modern_Warfare_III_(2023)",
-        # "Ready_or_Not": "https://www.imfdb.org/wiki/Ready_or_Not"
+        "Ready_or_Not": "https://www.imfdb.org/wiki/Ready_or_Not"
     }
     
-    # Create scraper instance
-    scraper = IMFDBScraper(delay=1)
+    # Create scraper instance with longer delay
+    scraper = IMFDBScraper(delay=3)
     
     # Scrape all games
     weapons_data = scraper.scrape_all_games(urls)
