@@ -6,7 +6,7 @@ import re
 from urllib.parse import urljoin
 
 class IMFDBScraper:
-    def __init__(self, delay=2):
+    def __init__(self, url, delay=2):
         """Initialize the scraper with optional delay between requests"""
         self.delay = delay
         self.session = requests.get(url)
@@ -232,8 +232,8 @@ class IMFDBScraper:
         all_weapons = []
         
         for game, url in urls.items():
-            weapons = self.scrape_game_weapons(game, url)
-            all_weapons.extend(weapons)
+            # weapons = self.scrape_game_weapons(game, url)
+            # all_weapons.extend(weapons)
             
             # Be respectful with delays
             if self.delay > 0:
@@ -280,7 +280,11 @@ if __name__ == "__main__":
         "MWIII": "https://www.imfdb.org/wiki/Call_of_Duty:_Modern_Warfare_III_(2023)",
         "Ready_or_Not": "https://www.imfdb.org/wiki/Ready_or_Not"
     }
-    
+    for game, url in urls.items():
+    print(f"Scraping {game} from {url}")
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, "html.parser")
+    print(f"Successfully retrieved {game} page ({len(response.content)} bytes)")
     # Create scraper instance with longer delay
     scraper = IMFDBScraper(delay=3)
     
