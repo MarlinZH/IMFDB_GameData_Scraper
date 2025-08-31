@@ -276,14 +276,17 @@ class IMFDBScraper:
 if __name__ == "__main__":
     # URLs to scrape
     urls = {
-        "MWII": "https://www.imfdb.org/wiki/Call_of_Duty:_Modern_Warfare_II_(2022)",
-        "MWIII": "https://www.imfdb.org/wiki/Call_of_Duty:_Modern_Warfare_III_(2023)",
-        "Ready_or_Not": "https://www.imfdb.org/wiki/Ready_or_Not"
+        "MWII": "https://www.imfdb.org/wiki/Call_of_Duty:_Modern_Warfare_II_(2022)"
+        # ,
+        # "MWIII": "https://www.imfdb.org/wiki/Call_of_Duty:_Modern_Warfare_III_(2023)",
+        # "Ready_or_Not": "https://www.imfdb.org/wiki/Ready_or_Not"
     }
     for game, url in urls.items():
         print(f"Scraping {game} from {url}")
         response = requests.get(url)
+        print("RESPONSE:",response.content)
         soup = BeautifulSoup(response.content, "html.parser")
+        print("SOUP:",soup.prettify()[:1000])  # Print first 1000 characters of prettified HTML
         print(f"Successfully retrieved {game} page ({len(response.content)} bytes)")
     # Create scraper instance with longer delay
     scraper = IMFDBScraper(delay=3)
