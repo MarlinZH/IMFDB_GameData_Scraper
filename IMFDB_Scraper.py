@@ -281,10 +281,10 @@ if __name__ == "__main__":
         "Ready_or_Not": "https://www.imfdb.org/wiki/Ready_or_Not"
     }
     for game, url in urls.items():
-    print(f"Scraping {game} from {url}")
-    response = requests.get(url)
-    soup = BeautifulSoup(response.content, "html.parser")
-    print(f"Successfully retrieved {game} page ({len(response.content)} bytes)")
+        print(f"Scraping {game} from {url}")
+        response = requests.get(url)
+        soup = BeautifulSoup(response.content, "html.parser")
+        print(f"Successfully retrieved {game} page ({len(response.content)} bytes)")
     # Create scraper instance with longer delay
     scraper = IMFDBScraper(delay=3)
     
