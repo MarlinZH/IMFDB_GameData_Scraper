@@ -4,4 +4,4 @@ Hosting is a future issue.
  scrapes pages for real and ingame names
 include delta force
 
-bypass cloudflare 
+new method to bypass cloudflare challenges 
