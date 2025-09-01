@@ -3,3 +3,5 @@ Pulling data from IMFDB for populating Notion DB with all weapons in game and re
 Hosting is a future issue.
  scrapes pages for real and ingame names
 include delta force
+
+bypass cloudflare 
