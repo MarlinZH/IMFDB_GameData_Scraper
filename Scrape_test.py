@@ -9,7 +9,7 @@ response = scraper.get(test_url)
 print("RESPONSE:", response.text[:100000])  # print first 1000 chars
 
 soup = BeautifulSoup(response.content, "html.parser")
-print ("SOUP:", soup.prettify()[:100000])  # Print first 1000 characters of prettified HTML
+# print ("SOUP:", soup.prettify()[:100000])  # Print first 1000 characters of prettified HTML
 
 toc = soup.find("div", id="toc")
 # IMFDB typically lists weapons in 'wikitable' class tables or in 'li' lists under headings
