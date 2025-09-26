@@ -5,6 +5,7 @@ import time
 import re
 from urllib.parse import urljoin
 
+<<<<<<< HEAD
 class IMFDBScraper:
     def __init__(self, url, delay=2):
         """Initialize the scraper with optional delay between requests"""
@@ -217,6 +218,34 @@ class IMFDBScraper:
             if not ingame:
                 ingame = toc_weapon_name
             
+=======
+# URL to scrape
+urls = {
+    "MWII": "https://www.imfdb.org/wiki/Call_of_Duty:_Modern_Warfare_II_(2022)",
+    "MWIII": "https://www.imfdb.org/wiki/Call_of_Duty:_Modern_Warfare_III_(2023)",
+    "Ready_or_Not": "https://www.imfdb.org/wiki/Ready_or_Not",
+    "Delta Force": "https://www.imfdb.org/wiki/Delta_Force_(2024_VG)"
+}
+
+weapons = []
+
+for game, url in urls.items():
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, "html.parser")
+    current_category = ""
+
+    for tag in soup.find_all(['h2', 'h3', 'h4', 'p']):
+        if tag.name == 'h2':
+            current_category = tag.get_text().strip()
+        elif tag.name in ['h3', 'h4']:
+            weapon_name = tag.get_text().strip()
+            real_world_equiv = ""
+
+            if "(" in weapon_name and ")" in weapon_name:
+                real_world_equiv = weapon_name.split("(")[-1].split(")")[0].strip()
+                weapon_name = weapon_name.split("(")[0].strip()
+
+>>>>>>> e9ac95324c807bfbc4aa44503a1592483c34b32b
             weapons.append({
                 "Game": game_name,
                 "Category": category,
