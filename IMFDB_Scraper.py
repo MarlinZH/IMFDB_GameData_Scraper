@@ -7,7 +7,7 @@ from urllib.parse import urljoin
 
 # URL to scrape
 urls = {
-    --"MWII": "https://www.imfdb.org/wiki/Call_of_Duty:_Modern_Warfare_II_(2022)",
+    "MWII": "https://www.imfdb.org/wiki/Call_of_Duty:_Modern_Warfare_II_(2022)",
     "MWIII": "https://www.imfdb.org/wiki/Call_of_Duty:_Modern_Warfare_III_(2023)",
     "Ready_or_Not": "https://www.imfdb.org/wiki/Ready_or_Not",
     "Delta Force": "https://www.imfdb.org/wiki/Delta_Force_(2024_VG)"
