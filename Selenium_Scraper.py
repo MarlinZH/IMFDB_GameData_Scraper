@@ -30,3 +30,5 @@ element = driver.find_element(By.TAG_NAME, "h1")
 print("First header:", element.text)
 
 driver.quit()
+
+print("done"
