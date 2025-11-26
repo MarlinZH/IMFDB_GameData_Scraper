@@ -1,5 +1,6 @@
 import cloudscraper
 from bs4 import BeautifulSoup
+import pandas
 redundant
 
 test_url = "https://www.imfdb.org/wiki/Call_of_Duty:_Modern_Warfare_II_(2022)"
