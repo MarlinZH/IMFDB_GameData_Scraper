@@ -1,5 +1,6 @@
 # Quick Start Guide
 
+
 Get started with the IMFDB Game Data Scraper in 5 minutes!
 
 ## Installation
