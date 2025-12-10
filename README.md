@@ -6,10 +6,27 @@ A Python tool for scraping weapon data from [IMFDB (Internet Movie Firearms Data
 
 - 🎮 Scrapes weapon data from IMFDB game pages
 - 🔫 Extracts both in-game and real-world weapon names
+- 🧹 **NEW: Intelligent deduplication with fuzzy matching**
+- 📷 **NEW: Automatic weapon image downloading**
 - 📊 Exports data in multiple formats (CSV, JSON, Markdown)
 - 🛡️ Built-in rate limiting and error handling
 - 🎯 Two parsing methods: content-based (accurate) and TOC-based (fast)
 - 📝 Detailed logging and statistics
+
+## What's New in v1.1.0
+
+### Deduplication
+- Three strategies: exact, fuzzy, and comprehensive
+- Removes duplicate weapon entries automatically
+- Handles name variations (e.g., "M4A1" vs "M4A1 Carbine")
+- Generates detailed deduplication reports
+
+### Image Scraping
+- Downloads weapon images from IMFDB
+- Organizes images by game and weapon
+- Tracks download statistics
+- Skips already-downloaded images
+- Validates image quality
 
 ## Installation
 
@@ -39,11 +56,45 @@ pip install -r requirements.txt
 
 ## Usage
 
-### Basic Usage
+### Quick Start
 
-Scrape all default games:
 ```bash
+# Basic scraping
 python main.py
+
+# With deduplication and image downloading
+python main.py --deduplicate --download-images
+
+# Full featured run
+python main.py --deduplicate --download-images --delay 2.0 -v
+```
+
+### Deduplication Options
+
+```bash
+# Enable deduplication with comprehensive strategy (recommended)
+python main.py --deduplicate
+
+# Choose specific strategy
+python main.py --deduplicate --dedup-strategy exact
+python main.py --deduplicate --dedup-strategy fuzzy
+python main.py --deduplicate --dedup-strategy comprehensive
+
+# Disable deduplication
+python main.py --no-deduplicate
+```
+
+### Image Scraping Options
+
+```bash
+# Download weapon images
+python main.py --download-images
+
+# Custom image directory
+python main.py --download-images --image-dir my_weapons
+
+# Adjust download speed
+python main.py --download-images --image-delay 2.0
 ```
 
 ### Advanced Options
@@ -66,6 +117,15 @@ python main.py --delay 3.0
 
 # Verbose output for debugging
 python main.py -v
+
+# Complete example
+python main.py \
+  --games Delta_Force_2024 \
+  --deduplicate --dedup-strategy comprehensive \
+  --download-images --image-dir delta_images \
+  --output delta_data \
+  --delay 2.0 \
+  -v
 ```
 
 ### Available Games
@@ -78,13 +138,32 @@ By default, the scraper supports:
 
 ## Output
 
-The scraper generates files in the `output/` directory (or custom directory if specified):
+### Data Files
+
+The scraper generates files in the `output/` directory (or custom directory):
 
 - **weapons.csv** - Comma-separated values format
 - **weapons.json** - JSON format for programmatic use
 - **weapons.md** - Markdown table for documentation
+- **deduplication_report.txt** - Statistics about removed duplicates (if enabled)
 
-### Output Schema
+### Image Files
+
+Images are organized in the `images/` directory (or custom directory):
+
+```
+images/
+├── by_game/          # Images organized by game
+│   ├── Delta_Force_2024/
+│   └── MW2_2022/
+├── by_weapon/        # Images organized by weapon name
+│   ├── M4A1/
+│   └── AK-47/
+├── thumbnails/       # Thumbnail versions (future)
+└── image_report.txt  # Download statistics
+```
+
+### Data Schema
 
 Each weapon entry contains:
 - `game` - Game name/identifier
@@ -93,101 +172,104 @@ Each weapon entry contains:
 - `real_world_name` - Actual firearm designation
 - `toc_name` - Original name from the page's table of contents
 
+## Documentation
+
+- **[DEDUP_IMAGE_GUIDE.md](DEDUP_IMAGE_GUIDE.md)** - Complete guide to deduplication and image scraping
+- **[USAGE.md](USAGE.md)** - Detailed usage instructions
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Technical architecture overview
+- **[examples/](examples/)** - Example scripts
+
 ## Project Structure
 
 ```
 IMFDB_GameData_Scraper/
 ├── src/
 │   ├── __init__.py
-│   ├── scraper.py      # Web scraping logic
-│   ├── parser.py       # HTML parsing and data extraction
-│   └── exporter.py     # Data export utilities
-├── main.py             # CLI entry point
-├── requirements.txt    # Python dependencies
-├── .gitignore
+│   ├── scraper.py       # Web scraping logic
+│   ├── parser.py        # HTML parsing and data extraction
+│   ├── exporter.py      # Data export utilities
+│   ├── deduplicator.py  # NEW: Deduplication logic
+│   └── image_scraper.py # NEW: Image downloading
+├── examples/
+│   └── dedup_image_example.py  # Example usage
+├── main.py              # CLI entry point
+├── requirements.txt     # Python dependencies
+├── DEDUP_IMAGE_GUIDE.md # Feature guide
 └── README.md
 ```
 
 ## How It Works
 
-1. **Scraping**: The `IMFDBScraper` class fetches game pages from IMFDB with proper rate limiting and retry logic
-2. **Parsing**: The `WeaponParser` extracts weapon information from HTML, identifying categories and weapon names
-3. **Exporting**: The `DataExporter` saves the data in your preferred format(s)
-
-### Parsing Methods
-
-#### Content Method (Default)
-- Parses the entire page content
-- More accurate and detailed
-- Captures all weapons even if TOC is incomplete
-- Recommended for most use cases
-
-#### TOC Method
-- Parses only the Table of Contents
-- Faster processing
-- May miss weapons not listed in TOC
-- Good for quick overviews
-
-## Adding New Games
-
-To add a new game, edit `main.py` and add to the `DEFAULT_GAMES` dictionary:
-
-```python
-DEFAULT_GAMES = {
-    # ... existing games ...
-    "Your_Game": "https://www.imfdb.org/wiki/Your_Game_Page",
-}
-```
+1. **Scraping**: Fetches game pages from IMFDB with rate limiting
+2. **Parsing**: Extracts weapon information from HTML
+3. **Deduplication** *(optional)*: Removes duplicate entries using fuzzy matching
+4. **Image Downloading** *(optional)*: Downloads and organizes weapon images
+5. **Exporting**: Saves data in your preferred format(s)
 
 ## Using as a Library
-
-You can also import and use the scraper in your own Python scripts:
 
 ```python
 from src.scraper import IMFDBScraper
 from src.parser import WeaponParser
+from src.deduplicator import WeaponDeduplicator
+from src.image_scraper import WeaponImageScraper
 from src.exporter import DataExporter
 
 # Initialize
 scraper = IMFDBScraper(delay=2.0)
 parser = WeaponParser()
-exporter = DataExporter(output_dir="my_data")
+deduplicator = WeaponDeduplicator()
+image_scraper = WeaponImageScraper(output_dir='images')
+exporter = DataExporter(output_dir='data')
 
-# Scrape a game
-url = "https://www.imfdb.org/wiki/Call_of_Duty:_Modern_Warfare_II_(2022)"
+# Scrape and parse
+url = "https://www.imfdb.org/wiki/Delta_Force_(2024_VG)"
 soup = scraper.fetch_page(url)
+weapons = parser.parse_weapons_from_page(soup, "Delta_Force")
 
-# Parse weapons
-weapons = parser.parse_weapons_from_page(soup, "MW2")
+# Deduplicate
+unique_weapons, stats = deduplicator.deduplicate_weapons(
+    weapons, 
+    strategy='comprehensive'
+)
+
+# Download images
+pages = {"Delta_Force": soup}
+weapon_images = image_scraper.scrape_all_weapon_images(unique_weapons, pages)
 
 # Export
-exporter.save_csv(weapons, "mw2_weapons.csv")
-exporter.print_summary(weapons)
+exporter.save_all(unique_weapons)
 ```
 
 ## Troubleshooting
 
 ### Cloudflare Protection
 
-If IMFDB is behind Cloudflare protection and blocking requests:
-
-1. The repository includes `Selenium_Scraper.py` as a reference for browser-based scraping
-2. Install Selenium dependencies: `pip install selenium webdriver-manager`
-3. Consider using residential proxies or browser automation for Cloudflare bypass
+If IMFDB blocks requests:
+1. Use `Selenium_Scraper.py` for browser-based scraping
+2. Install: `pip install selenium webdriver-manager`
+3. Increase delays: `--delay 5.0`
 
 ### Rate Limiting
 
-If you get blocked or rate limited:
-- Increase the delay: `python main.py --delay 5.0`
-- Scrape games one at a time
-- Use a VPN or wait before retrying
+If blocked:
+- Increase delay: `--delay 5.0`
+- Scrape fewer games at once
+- Wait before retrying
 
 ### No Weapons Found
 
-If the scraper returns no weapons:
-- Check if the IMFDB page structure has changed
-- Try the alternative parsing method: `python main.py --method toc`
-- Use verbose mode to debug: `python main.py -v`
+If no results:
+- Try alternative method: `--method toc`
+- Use verbose mode: `-v`
+- Check if IMFDB page structure changed
+
+### Image Download Issues
+
+If images fail:
+- Increase retry attempts: `--max-retries 5`
+- Increase image delay: `--image-delay 2.0`
+- Check `image_report.txt` for details
 
 ## Legal & Ethical Considerations
 
@@ -206,6 +288,8 @@ Contributions are welcome! Please:
 3. Make your changes with tests
 4. Submit a pull request
 
+See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+
 ## License
 
 MIT License - feel free to use this project for personal and educational purposes.
@@ -219,8 +303,11 @@ MIT License - feel free to use this project for personal and educational purpose
 
 If you encounter issues:
 1. Check the [Issues](https://github.com/MarlinZH/IMFDB_GameData_Scraper/issues) page
-2. Create a new issue with details about your problem
-3. Include verbose output (`-v`) and error messages
+2. Review [DEDUP_IMAGE_GUIDE.md](DEDUP_IMAGE_GUIDE.md) for common questions
+3. Create a new issue with:
+   - Verbose output (`-v`)
+   - Error messages
+   - Steps to reproduce
 
 ---
 
