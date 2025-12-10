@@ -1,14 +1,21 @@
 """
 IMFDB Game Data Scraper
 
-A Python tool for scraping weapon data from IMFDB (Internet Movie Firearms Database).
+A comprehensive tool for scraping weapon data and images from IMFDB.
 """
-
-__version__ = "1.0.0"
-__author__ = "MarlinZH"
 
 from .scraper import IMFDBScraper
 from .parser import WeaponParser
 from .exporter import DataExporter
+from .deduplicator import WeaponDeduplicator
+from .image_scraper import WeaponImageScraper
 
-__all__ = ["IMFDBScraper", "WeaponParser", "DataExporter"]
+__all__ = [
+    'IMFDBScraper',
+    'WeaponParser',
+    'DataExporter',
+    'WeaponDeduplicator',
+    'WeaponImageScraper'
+]
+
+__version__ = '1.1.0'
